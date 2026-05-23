@@ -3,7 +3,6 @@
 @Metadata.ignorePropagatedAnnotations: true
 define root view entity zr_zdt_inct_ahj as select from zdt_inct_ahj
  composition [0..*] of zdd_inct_h_ahj as _History 
-// association [0..*] to zdt_inct_h_ahj as _History on $projection.IncUuid = _History.inc_uuid
 
 {
     key inc_uuid as IncUuid,

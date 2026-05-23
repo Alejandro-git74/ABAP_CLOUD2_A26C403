@@ -1,3 +1,4 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Association with history table'
 @Metadata.ignorePropagatedAnnotations: true
@@ -23,5 +24,6 @@ association to parent zr_zdt_inct_ahj as _Incident
     local_last_changed_by as LocalLastChangedBy,
     local_last_changed_at as LocalLastChangedAt,
     last_changed_at as LastChangedAt,
-    _Incident // Make association public
+     // Make association public
+     _Incident
 }
