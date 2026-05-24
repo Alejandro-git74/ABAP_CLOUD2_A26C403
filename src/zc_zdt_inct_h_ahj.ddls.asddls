@@ -1,6 +1,6 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'History - Comsuption'
-//@Metadata.ignorePropagatedAnnotations: true
+@Metadata.ignorePropagatedAnnotations: true
 @Metadata.allowExtensions: true
 define view entity ZC_ZDT_INCT_H_AHJ as projection on zdd_inct_h_ahj
 {

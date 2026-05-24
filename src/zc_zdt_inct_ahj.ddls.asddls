@@ -1,6 +1,6 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Incident - Consumption'
-//@Metadata.ignorePropagatedAnnotations: true
+@Metadata.ignorePropagatedAnnotations: true
 @Metadata.allowExtensions: true
 define root view entity ZC_ZDT_INCT_AHJ 
 provider contract transactional_query
