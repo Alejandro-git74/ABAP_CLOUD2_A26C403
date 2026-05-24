@@ -22,8 +22,8 @@ annotate entity ZC_ZDT_INCT_AHJ
                 label:         'History',
                 position:      20,
                 targetElement: '_History'}]
-  
-  @UI: {lineItem: [{ position: 10,
+                
+  @UI: {lineItem: [{ position: 10, 
                      importance: #HIGH,
                      label: 'IncUUID'},
                    { type: #FOR_ACTION,
@@ -57,20 +57,19 @@ annotate entity ZC_ZDT_INCT_AHJ
   selectionField: [{ position: 40 }]}  
   Description;
     
-//  @Consumption.valueHelpDefinition: [ {
-//    entity.name: 'zdd_status_vh_ahj',
-//    entity.element: 'StatusCode',
-//    useForValidation: true   } ]   
+    
+  @Consumption.valueHelpDefinition: [ { entity.name: 'zdd_status_vh_ahj',
+                                        entity.element: 'StatusCode',
+                                        useForValidation: true   } ]   
   @UI: {lineItem: [{ position: 50, importance: #LOW }],
   identification: [{ position: 50  } ],
   selectionField: [{ position: 50 }]}   
   Status;
     
   
-  @Consumption.valueHelpDefinition: [ {
-  entity.name: 'zdd_priority_vh_ahj',
-  entity.element: 'PriorityCode',
-  useForValidation: true } ]
+  @Consumption.valueHelpDefinition: [ { entity.name: 'zdd_priority_vh_ahj',
+                                        entity.element: 'PriorityCode',
+                                        useForValidation: true } ]
   @UI: {lineItem: [{ position: 60, importance: #LOW }],
   identification: [{ position: 60  } ],
   selectionField: [{ position: 60 }]}  
