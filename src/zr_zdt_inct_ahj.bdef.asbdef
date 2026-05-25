@@ -1,0 +1,110 @@
+managed implementation in class zbp_r_zdt_inct_ahj unique;
+strict ( 2 );
+with draft;
+
+
+define behavior for zr_zdt_inct_ahj alias Incident
+persistent table zdt_inct_ahj
+draft table zdt_inct_d_ahj
+lock master
+total etag LastChangedAt
+etag master LocalLastChangedAt
+authorization master ( global, instance )
+
+
+{
+  create ( authorization : global );
+  update;
+  delete;
+
+  association _History { create ( features : instance ); with draft;  }
+
+  field ( numbering : managed, readonly ) IncUuid;
+
+  field ( readonly )  IncidentID,
+                      Status,
+                      ChangedDate,
+                      LocalCreatedBy,
+                      LocalCreatedAt,
+                      LocalLastChangedBy,
+                      LocalLastChangedAt,
+                      LastChangedAt;
+
+  field (mandatory)   title,
+                      Description,
+                      Priority;
+
+  action ( features : instance, authorization : update ) changeStatus
+  parameter zae_change_status_param_ahj result [1] $self;
+
+  side effects { action changeStatus affects $self; }
+
+  internal action setHistory;
+
+  determination setDefaultHistory on save { create; }
+  determination setDefaultValues on modify { create; }
+
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Edit;
+  draft action Resume;
+  draft determine action Prepare;
+
+
+  mapping for zdt_inct_ahj
+    {
+      IncUUID            = inc_uuid;
+      IncidentID         = incident_id;
+      Title              = title;
+      Description        = description;
+      Status             = status;
+      Priority           = priority;
+      CreationDate       = creation_date;
+      ChangedDate        = changed_date;
+      LocalCreatedBy     = local_created_by;
+      LocalCreatedAt     = local_created_at;
+      LocalLastChangedBy = local_last_changed_by;
+      LocalLastChangedAt = local_last_changed_at;
+      LastChangedAt      = last_changed_at;
+    }
+}
+
+
+
+define behavior for zdd_inct_h_ahj alias History
+implementation in class zbp_dd_inct_h_ahj unique
+persistent table zdt_inct_h_ahj
+draft table zdt_inct_h_d_ahj
+lock dependent by _Incident
+authorization dependent by _Incident
+{
+  update;
+  delete;
+
+  field ( numbering : managed, readonly ) HisUUID;
+
+  field ( readonly )  IncUUID,
+                      LocalCreatedBy,
+                      LocalCreatedAt,
+                      LocalLastChangedBy,
+                      LocalLastChangedAt,
+                      LastChangedAt;
+
+  association _Incident{ with draft; }
+
+    mapping for zdt_inct_h_ahj
+    {
+      HisUUID            = his_uuid;
+      IncUUID            = inc_uuid;
+      HisID              = his_id;
+      PreviousStatus     = previous_status;
+      NewStatus          = new_status;
+      Text               = text;
+      LocalCreatedBy     = local_created_by;
+      LocalCreatedAt     = local_created_at;
+      LocalLastChangedBy = local_last_changed_by;
+      LocalLastChangedAt = local_last_changed_at;
+      LastChangedAt      = last_changed_at;
+    }
+
+}
