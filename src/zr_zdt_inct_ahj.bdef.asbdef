@@ -1,38 +1,45 @@
-managed implementation in class zbp_r_zdt_inct_ahj unique;
+managed;
 strict ( 2 );
 with draft;
 
-
 define behavior for zr_zdt_inct_ahj alias Incident
+implementation in class zbp_r_zdt_inct_ahj unique
 persistent table zdt_inct_ahj
 draft table zdt_inct_d_ahj
-lock master
-total etag LastChangedAt
 etag master LocalLastChangedAt
+lock master total etag LastChangedAt
 authorization master ( global, instance )
 
-
 {
+
   create ( authorization : global );
   update;
   delete;
 
-  association _History { create ( features : instance ); with draft;  }
+  association _History { create( features : instance ); with draft; }
 
-  field ( numbering : managed, readonly ) IncUuid;
+  field ( numbering : managed  ) IncUuid;
+  field ( readonly )
+  IncUuid,
+  IncidentID,
+  Status,
+  ChangedDate,
+  LocalCreatedBy,
+  LocalCreatedAt,
+  LocalLastChangedBy,
+  LocalLastChangedAt,
+  LastChangedAt;
 
-  field ( readonly )  IncidentID,
-                      Status,
-                      ChangedDate,
-                      LocalCreatedBy,
-                      LocalCreatedAt,
-                      LocalLastChangedBy,
-                      LocalLastChangedAt,
-                      LastChangedAt;
+  field (mandatory)
+  title,
+  Description,
+  Priority;
 
-  field (mandatory)   title,
-                      Description,
-                      Priority;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Edit;
+  draft action Resume;
+  draft determine action Prepare;
 
   action ( features : instance, authorization : update ) changeStatus
   parameter zae_change_status_param_ahj result [1] $self;
@@ -42,14 +49,8 @@ authorization master ( global, instance )
   internal action setHistory;
 
   determination setDefaultHistory on save { create; }
+
   determination setDefaultValues on modify { create; }
-
-  draft action Activate optimized;
-  draft action Discard;
-  draft action Edit;
-  draft action Resume;
-  draft determine action Prepare;
-
 
   mapping for zdt_inct_ahj
     {
@@ -70,27 +71,29 @@ authorization master ( global, instance )
 }
 
 
-
 define behavior for zdd_inct_h_ahj alias History
 implementation in class zbp_dd_inct_h_ahj unique
 persistent table zdt_inct_h_ahj
 draft table zdt_inct_h_d_ahj
 lock dependent by _Incident
 authorization dependent by _Incident
+etag master LocalLastChangedAt
 {
   update;
   delete;
 
-  field ( numbering : managed, readonly ) HisUUID;
+  association _Incident { with draft; }
 
-  field ( readonly )  IncUUID,
-                      LocalCreatedBy,
-                      LocalCreatedAt,
-                      LocalLastChangedBy,
-                      LocalLastChangedAt,
-                      LastChangedAt;
+  field ( numbering : managed ) HisUUID;
+  field ( readonly )
+  HisUUID,
+  IncUUID,
+  LocalCreatedBy,
+  LocalCreatedAt,
+  LocalLastChangedBy,
+  LocalLastChangedAt,
+  LastChangedAt;
 
-  association _Incident{ with draft; }
 
     mapping for zdt_inct_h_ahj
     {

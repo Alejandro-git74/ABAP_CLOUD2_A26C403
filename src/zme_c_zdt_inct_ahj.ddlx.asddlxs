@@ -21,7 +21,8 @@ annotate entity ZC_ZDT_INCT_AHJ
                 type:          #LINEITEM_REFERENCE,
                 label:         'History',
                 position:      20,
-                targetElement: '_History'}]                
+                targetElement: '_History'}]   
+  @UI.hidden: true                            
   @UI: {lineItem: [{ position: 10, 
                      importance: #HIGH,
                      label: 'IncUUID'},
@@ -35,8 +36,7 @@ annotate entity ZC_ZDT_INCT_AHJ
                      dataAction: 'changeStatus',
                      label: 'Change Status',
                      position: 10 }],                               
-  selectionField: [{ position: 10 }]}
-  @UI.hidden: true   
+  selectionField: [{ position: 10 }]} 
   IncUuid;
     
   @UI: {lineItem: [{ position: 20, importance: #MEDIUM }],

@@ -1,0 +1,5 @@
+CLASS zbp_r_zdt_inct_ahj DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zr_zdt_inct_ahj.
+ENDCLASS.
+
+CLASS zbp_r_zdt_inct_ahj IMPLEMENTATION.
+ENDCLASS.
