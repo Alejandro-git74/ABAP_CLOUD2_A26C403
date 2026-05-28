@@ -1,4 +1,5 @@
 @EndUserText.label: 'Incident - Service Definition'
 define service ZSD_C_ZDT_INCT_AHJ {
   expose ZC_ZDT_INCT_AHJ;
+  expose ZC_ZDT_INCT_H_AHJ;
 }

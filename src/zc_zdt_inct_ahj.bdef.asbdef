@@ -1,7 +1,7 @@
 projection;
 strict ( 2 );
 use draft;
-//use side effects;
+use side effects;
 
 define behavior for ZC_ZDT_INCT_AHJ alias Incident
 {
@@ -9,7 +9,7 @@ define behavior for ZC_ZDT_INCT_AHJ alias Incident
   use update;
   use delete;
 
-//  use action changeStatus;
+  use action changeStatus;
 
   use action Resume;
   use action Edit;
