@@ -30,12 +30,18 @@ annotate entity ZC_ZDT_INCT_H_AHJ
          identification: [ { position: 30 } ] }
   HisId;
   
-  @UI: { lineItem:       [ { position: 40, importance: #LOW } ],
-         identification: [ { position: 40 } ] }  
+  @Consumption.valueHelpDefinition: [ { entity.name: 'zdd_status_vh_ahj',
+                                        entity.element: 'StatusCode',
+                                        useForValidation: true   } ]  
+  @UI: { lineItem:       [ { label: 'Previus Status', position: 40, importance: #LOW } ],
+         identification: [ { label: 'Previus Status', position: 40 } ] }  
   PreviousStatus;
   
-  @UI: { lineItem:       [ { position: 50, importance: #LOW } ],
-         identification: [ { position: 50 } ] }
+  @Consumption.valueHelpDefinition: [ { entity.name: 'zdd_status_vh_ahj',
+                                        entity.element: 'StatusCode',
+                                        useForValidation: true   } ]  
+  @UI: { lineItem:       [ { label: 'Status Incident', position: 50, importance: #LOW } ],
+         identification: [ { label: 'Status Incident', position: 50 } ] }
   NewStatus;
   
   @UI: { lineItem:       [ { position: 60, importance: #LOW } ],

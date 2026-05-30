@@ -117,7 +117,7 @@ CLASS lhc_Incident IMPLEMENTATION.
 * Customize error messages
         APPEND VALUE #( %tky = <incident>-%tky
                         %msg = NEW zcl_incident_messages_ahj( textid = zcl_incident_messages_ahj=>status_invalid
-                                                            status = lv_wrong_status
+                                                            status   = lv_wrong_status
                                                             severity = if_abap_behv_message=>severity-error )
                         %state_area = 'VALIDATE_COMPONENT'
                          ) TO reported-incident.
