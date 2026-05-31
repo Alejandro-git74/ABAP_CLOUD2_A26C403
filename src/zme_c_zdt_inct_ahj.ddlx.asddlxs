@@ -3,10 +3,12 @@
                      typeNamePlural:      'Incidents',
                      title:               { type: #STANDARD,
                                             label: 'Incidents',
-                                            value: 'IncidentID' } },
-                     presentationVariant: [{ sortOrder: [{ by: 'IncidentID',
-                                             direction: #ASC }],
-                     visualizations:      [{ type: #AS_LINEITEM }] }] }
+                                            value: 'IncidentID' } }, 
+       presentationVariant: [{ sortOrder: [{ by: 'IncidentId',
+                                             direction: #ASC } ],                                          
+       visualizations: [{ type: #AS_LINEITEM }]
+                                                         }] 
+                                                          }                      
 annotate entity ZC_ZDT_INCT_AHJ
     with 
 {

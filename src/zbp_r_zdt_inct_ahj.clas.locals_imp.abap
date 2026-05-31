@@ -2,16 +2,20 @@ CLASS lhc_Incident DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
   PUBLIC SECTION.
 
-      CONSTANTS:
-                gc_status_op  TYPE zde_status_ahj VALUE 'OP',
-                gc_status_ip  TYPE zde_status_ahj VALUE 'IP',
-                gc_status_pe  TYPE zde_status_ahj VALUE 'PE',
-                gc_status_co  TYPE zde_status_ahj VALUE 'CO',
-                gc_status_cl  TYPE zde_status_ahj VALUE 'CL',
-                gc_status_cn  TYPE zde_status_ahj VALUE 'CN'.
 
+    CONSTANTS: BEGIN OF i_status,
+                 op TYPE zde_status_ahj VALUE 'OP',
+                 ip TYPE zde_status_ahj VALUE 'IP',
+                 pe TYPE zde_status_ahj VALUE 'PE',
+                 co TYPE zde_status_ahj VALUE 'CO',
+                 cl TYPE zde_status_ahj VALUE 'CL',
+                 cn TYPE zde_status_ahj VALUE 'CN',
+               END OF i_status.
 
   PRIVATE SECTION.
+
+    METHODS validaIncident FOR VALIDATE ON SAVE
+      IMPORTING keys FOR Incident~validaIncident.
 
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR Incident RESULT result.
@@ -34,6 +38,8 @@ CLASS lhc_Incident DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS setDefaultHistory FOR DETERMINE ON SAVE
       IMPORTING keys FOR Incident~setDefaultHistory.
 
+
+
     METHODS get_history_index EXPORTING ev_incuuid      TYPE sysuuid_x16
                               RETURNING VALUE(rv_index) TYPE zde_his_id_ahj.
 
@@ -41,7 +47,54 @@ ENDCLASS.
 
 CLASS lhc_Incident IMPLEMENTATION.
 
+
+  METHOD validaIncident.
+
+    READ ENTITIES OF zr_zdt_inct_ahj IN LOCAL MODE
+         ENTITY Incident
+         ALL FIELDS WITH CORRESPONDING #( keys )
+         RESULT DATA(Incidents).
+
+    LOOP AT Incidents INTO DATA(Incident).
+
+      IF Incident-title IS INITIAL.
+        APPEND VALUE #( %tky = Incident-%tky ) TO failed-Incident.
+*      Customize error messages
+        APPEND VALUE #( %tky = Incident-%tky
+                       %msg = NEW zcl_incident_messages_ahj( textid = zcl_incident_messages_ahj=>enter_title
+                                                             severity = if_abap_behv_message=>severity-error   )
+                                                             %element-title = if_abap_behv=>mk-on )
+                                                     TO reported-Incident.
+      ENDIF.
+
+      IF Incident-Description IS INITIAL.
+        APPEND VALUE #( %tky = Incident-%tky ) TO failed-Incident.
+*      Customize error messages
+        APPEND VALUE #( %tky = Incident-%tky
+                       %msg = NEW zcl_incident_messages_ahj( textid = zcl_incident_messages_ahj=>enter_description
+                                                             severity = if_abap_behv_message=>severity-error   )
+                                                             %element-title = if_abap_behv=>mk-on )
+                                                     TO reported-Incident.
+      ENDIF.
+
+      IF Incident-priority IS INITIAL.
+        APPEND VALUE #( %tky = Incident-%tky ) TO failed-Incident.
+*      Customize error messages
+        APPEND VALUE #( %tky = Incident-%tky
+                       %msg = NEW zcl_incident_messages_ahj( textid = zcl_incident_messages_ahj=>enter_priority
+                                                             severity = if_abap_behv_message=>severity-error   )
+                                                             %element-title = if_abap_behv=>mk-on )
+                                                     TO reported-Incident.
+      ENDIF.
+
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
   METHOD get_instance_features.
+
     DATA lv_history_index TYPE zde_his_id_ahj.
     READ ENTITIES OF zr_zdt_inct_ahj IN LOCAL MODE
        ENTITY Incident
@@ -60,28 +113,129 @@ CLASS lhc_Incident IMPLEMENTATION.
 
     result = VALUE #( FOR incident IN incidents
                           ( %tky                   = incident-%tky
-                            %action-ChangeStatus   = COND #( WHEN incident-Status = gc_status_co OR
-                                                                  incident-Status = gc_status_cl OR
-                                                                  incident-Status = gc_status_cn OR
+                            %action-ChangeStatus   = COND #( WHEN incident-Status = i_status-co OR
+                                                                  incident-Status = i_status-cl OR
+                                                                  incident-Status = i_status-cn OR
                                                                   lv_history_index = 0
                                                              THEN if_abap_behv=>fc-o-disabled
                                                              ELSE if_abap_behv=>fc-o-enabled )
 
-                            %assoc-_History       = COND #( WHEN incident-Status = gc_status_co OR
-                                                                 incident-Status = gc_status_cl OR
-                                                                 incident-Status = gc_status_cn OR
+                            %assoc-_History       = COND #( WHEN incident-Status = i_status-co OR
+                                                                 incident-Status = i_status-cl OR
+                                                                 incident-Status = i_status-cn OR
                                                                  lv_history_index = 0
                                                             THEN if_abap_behv=>fc-o-disabled
                                                             ELSE if_abap_behv=>fc-o-enabled )
                           ) ).
   ENDMETHOD.
 
+
   METHOD get_instance_authorizations.
 
+    DATA: update_request TYPE abap_bool,
+          update_granted TYPE abap_bool.
+
+    DATA(lv_technical_name) = cl_abap_context_info=>get_user_technical_name( ).
+
+
+    READ ENTITIES OF zr_zdt_inct_ahj IN LOCAL MODE
+       ENTITY Incident
+         FIELDS ( Status )
+         WITH CORRESPONDING #( keys )
+       RESULT DATA(Incidents)
+       FAILED failed.
+
+    update_request = COND #( WHEN requested_authorizations-%update EQ if_abap_behv=>mk-on
+                               OR requested_authorizations-%action-Edit EQ if_abap_behv=>mk-on
+                            THEN abap_true
+                            ELSE abap_false ).
+
+    LOOP AT Incidents INTO DATA(Incident)
+        WHERE Status IS NOT INITIAL.
+
+
+*  lv_technical_name = 'DIFERENT_USER'.
+*  lv_technical_name = 'CB9980000477'.
+*** Authorization Status IP
+        IF Incident-Status EQ 'IP'.
+          IF lv_technical_name EQ 'CB9980000477'.
+            update_granted = abap_true.
+          ELSE.
+            update_granted = abap_false.
+*      Customize error messages
+            APPEND VALUE #( %msg = NEW zcl_incident_messages_ahj( textid = zcl_incident_messages_ahj=>assign_responsible
+                                                                 severity = if_abap_behv_message=>severity-error   )
+                                                                 %element-title = if_abap_behv=>mk-on )
+                                                         TO reported-Incident.
+
+
+            APPEND VALUE #( LET upd_auth = COND #( WHEN update_granted = abap_true
+                                                   THEN if_abap_behv=>auth-allowed
+                                                   ELSE if_abap_behv=>auth-unauthorized )
+                                           IN
+                                           %tky = Incident-%tky
+                                           %update = upd_auth
+                                           %action-edit = upd_auth ) TO result.
+
+          ENDIF.
+
+      endif.
+
+**** Authorization All Status
+*        IF Incident-Status ne 'OP'.
+*
+*          lv_technical_name = 'DIFERENT_USER'.
+*
+*
+*          IF lv_technical_name EQ 'CB9980000477'.
+*            update_granted = abap_true.
+*          ELSE.
+*            update_granted = abap_false.
+**      Customize error messages
+*        append value #( %msg = new zcl_incident_messages_ahj( textid = zcl_incident_messages_ahj=>not_authorized
+*                                                             severity = if_abap_behv_message=>severity-error   )
+*                                                             %element-title = if_abap_behv=>mk-on )
+*                                                     to reported-Incident.
+*
+*
+*            APPEND VALUE #( LET upd_auth = COND #( WHEN update_granted = abap_true
+*                                                   THEN if_abap_behv=>auth-allowed
+*                                                   ELSE if_abap_behv=>auth-unauthorized )
+*                                           IN
+*                                           %tky = Incident-%tky
+*                                           %update = upd_auth
+*                                           %action-edit = upd_auth ) TO result.
+*
+*          ENDIF.
+*
+*        ENDIF.
+
+    ENDLOOP.
+
+
   ENDMETHOD.
 
+
   METHOD get_global_authorizations.
+
+     data(lv_technical_name) = cl_abap_context_info=>get_user_technical_name( ).
+*   lv_technical_name = 'DIFERENT_USER'.
+* lv_technical_name = 'CB9980000477'.
+     if requested_authorizations-%update eq if_abap_behv=>mk-on.
+      if lv_technical_name eq 'CB9980000477'.
+        result-%create = if_abap_behv=>auth-allowed.
+       else.
+        result-%create = if_abap_behv=>auth-unauthorized.
+*      Customize error messages
+        append value #( %msg = new zcl_incident_messages_ahj( textid = zcl_incident_messages_ahj=>not_authorized
+                                                             severity = if_abap_behv_message=>severity-error   )
+                                                             %element-title = if_abap_behv=>mk-on )
+                                                     to reported-Incident.
+      endif.
+     endif.
+
   ENDMETHOD.
+
 
   METHOD changeStatus.
 * Declaration of necessary variables
@@ -108,8 +262,8 @@ CLASS lhc_Incident IMPLEMENTATION.
       lv_status = keys[ KEY id %tky = <incident>-%tky ]-%param-status.
 
 **  It is not possible to change the pending (PE) to Completed (CO) or Closed (CL) status
-      IF <incident>-Status EQ gc_status_pe AND lv_status EQ gc_status_cl OR
-         <incident>-Status EQ gc_status_pe AND lv_status EQ gc_status_co.
+      IF <incident>-Status EQ i_status-pe AND lv_status EQ i_status-cl OR
+         <incident>-Status EQ i_status-pe AND lv_status EQ i_status-co.
 ** Set authorizations
         APPEND VALUE #( %tky = <incident>-%tky ) TO failed-incident.
 
@@ -295,7 +449,7 @@ CLASS lhc_Incident IMPLEMENTATION.
       WITH VALUE #(  FOR incident IN incidents ( %tky = incident-%tky
                                                  IncidentID = lv_max_inct_id
                                                  CreationDate = cl_abap_context_info=>get_system_date( )
-                                                 Status       = gc_status_op )  ).
+                                                 Status       = i_status-op )  ).
   ENDMETHOD.
 
   METHOD setDefaultHistory.
@@ -315,5 +469,8 @@ CLASS lhc_Incident IMPLEMENTATION.
             his_uuid IS NOT NULL
       INTO @rv_index.
   ENDMETHOD.
+
+
+
 
 ENDCLASS.

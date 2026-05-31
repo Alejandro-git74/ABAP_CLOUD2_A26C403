@@ -1,12 +1,17 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Incidents - Root Entity'
 @Metadata.ignorePropagatedAnnotations: true
+@Search.searchable: true
+
 define root view entity zr_zdt_inct_ahj as select from zdt_inct_ahj
  composition [0..*] of zdd_inct_h_ahj as _History 
 
 {
     key inc_uuid as IncUuid,
     incident_id as IncidentId,
+    @Search.defaultSearchElement: true
+    @Search.fuzzinessThreshold: 0.8
+    @Search.ranking: #MEDIUM
     title as Title,
     description as Description,  
     status as Status,

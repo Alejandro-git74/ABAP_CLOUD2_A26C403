@@ -6,8 +6,9 @@ define behavior for zr_zdt_inct_ahj alias Incident
 implementation in class zbp_r_zdt_inct_ahj unique
 persistent table zdt_inct_ahj
 draft table zdt_inct_d_ahj
+lock master
+total etag LastChangedAt
 etag master LocalLastChangedAt
-lock master total etag LastChangedAt
 authorization master ( global, instance )
 
 {
@@ -18,40 +19,44 @@ authorization master ( global, instance )
 
   association _History { create( features : instance ); with draft; }
 
-  field ( numbering : managed  ) IncUuid;
-  field ( readonly )
-  IncUuid,
-  IncidentID,
-  Status,
-  ChangedDate,
-  LocalCreatedBy,
-  LocalCreatedAt,
-  LocalLastChangedBy,
-  LocalLastChangedAt,
-  LastChangedAt;
+  field ( numbering : managed, readonly  ) IncUuid;
+  field ( readonly ) IncidentID,
+                     Status,
+                     ChangedDate,
+                     LocalCreatedBy,
+                     LocalCreatedAt,
+                     LocalLastChangedBy,
+                     LocalLastChangedAt,
+                     LastChangedAt;
 
-  field (mandatory)
-  title,
-  Description,
-  Priority;
+  field (mandatory)   title,
+                      Description,
+                      Priority;
 
+// Action changeStatus with parameter
+  action ( features : instance, authorization : update ) changeStatus
+  parameter zae_change_status_param_ahj result [1] $self;
+
+// Validation fields obligatories
+  validation validaIncident on save { create; field title, Description, Priority, status; }
+
+  internal action setHistory;
+
+// Determinatios
+  determination setDefaultHistory on save { create; }
+  determination setDefaultValues on modify { create; }
+
+// Side Efects
+  side effects { action changeStatus affects $self; }
+
+// Draft
   draft action Activate optimized;
   draft action Discard;
   draft action Edit;
   draft action Resume;
   draft determine action Prepare;
 
-  action ( features : instance, authorization : update ) changeStatus
-  parameter zae_change_status_param_ahj result [1] $self;
-
-  side effects { action changeStatus affects $self; }
-
-  internal action setHistory;
-
-  determination setDefaultHistory on save { create; }
-
-  determination setDefaultValues on modify { create; }
-
+// Mapping
   mapping for zdt_inct_ahj
     {
       IncUUID            = inc_uuid;
@@ -85,17 +90,16 @@ etag master LocalLastChangedAt
 
   association _Incident { with draft; }
 
-  field ( numbering : managed ) HisUUID;
-  field ( readonly )
-  HisUUID,
-  IncUUID,
-  LocalCreatedBy,
-  LocalCreatedAt,
-  LocalLastChangedBy,
-  LocalLastChangedAt,
-  LastChangedAt;
+  field ( numbering : managed, readonly ) HisUUID;
 
+  field ( readonly )  IncUUID,
+                      LocalCreatedBy,
+                      LocalCreatedAt,
+                      LocalLastChangedBy,
+                      LocalLastChangedAt,
+                      LastChangedAt;
 
+// Mapping
     mapping for zdt_inct_h_ahj
     {
       HisUUID            = his_uuid;
